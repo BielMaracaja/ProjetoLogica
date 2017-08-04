@@ -21,25 +21,18 @@ Integrantes: Raquel Rufino, Pedro Henrique, Victor Emanuel, Mateus Mangueira e G
 // Cada Discilpina tem um (n alunos), (4 monitores), (2 unidades), (Projeto);
 
 module Disciplina
+----------------------------------------------------------------------------------Assinatura----------------------------------------------------------------------------------------
 
-abstract sig Disciplina{
-	aluno : some Aluno
-	/*monitor : #Monitor = 4
-	unidade : #Unidade = 2
-	projeto : some Projeto*/
+one sig Disciplina{
+	alunos : some Aluno,
+	monitores : set Monitor,
+	unidades: set Unidade
+	/*projeto : some Projeto*/
 }
 
 some sig Aluno{
 	nome : one Nome,
 	matricula : some Matricula
-}
-
-assert alunoSemNome{
-	all a : Aluno | #(a.nome) > 0 
-}
-
-assert alunoSemMatricula{
-	all a : Aluno | #(a.matricula) > 0 
 }
 
 sig Monitor{
@@ -49,10 +42,6 @@ sig Monitor{
 
 sig Unidade{
 	aula : one Aula
-}
-
-assert unidadeSemAula{
-	all u : Unidade | #(u.aula) > 0
 }
 
 sig Projeto{
@@ -65,6 +54,43 @@ sig Atividade{}
 sig Aula{}
 sig Tema{}
 
+----------------------------------------------------------------------------------Fatos----------------------------------------------------------------------------------------
+fact DisciplinaTemQuatroMonitores{
+	all d : Disciplina | verificaQuantidadeMonitores[d]
+}
 
+fact DisciplinaTemDuasUnidades{
+	all d : Disciplina | verificaQuantidadeUnidades[d]
+}
+
+-- Predicados
+pred verificaQuantidadeMonitores[d : Disciplina]{
+	#(d.monitores) = 4
+}
+
+pred verificaQuantidadeUnidades[d : Disciplina]{
+	#(d.unidades) = 2
+} 
+
+----------------------------------------------------------------------------------Funcoes----------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------Asserts---------------------------------------------------------------------------------------- 
+
+assert alunoSemNome{
+	all a : Aluno | #(a.nome) > 0 
+}
+
+assert alunoSemMatricula{
+	all a : Aluno | #(a.matricula) > 0 
+}
+
+
+assert unidadeSemAula{
+	all u : Unidade | #(u.aula) > 0
+}
+
+
+----------------------------------------------------------------------------------Show----------------------------------------------------------------------------------------
 pred show[]{}
-run show
+run show for 4
+
