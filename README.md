@@ -2,7 +2,7 @@
 Projeto referente a disciplina de Lógica Matemática (UFCG), utilizando a linguagem de programação Alloy. 
 Período 2017.1
 
-Tema 9: Monitoria de Lógica 
+Tema 9: Monitoria de Lógica. 
 
 Em um determinado período, a disciplina de Lógica Matemática dispõe de quatro monitores que são responsáveis por 
 algumas atividades distribuídas entre as três unidades da disciplina. 
