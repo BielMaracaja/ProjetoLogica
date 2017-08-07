@@ -21,18 +21,19 @@ Integrantes: Raquel Rufino, Pedro Henrique, Victor Emanuel, Mateus Mangueira e G
 // Cada Discilpina tem um (n alunos), (4 monitores), (2 unidades), (Projeto);
 
 module Disciplina
-----------------------------------------------------------------------------------Assinatura----------------------------------------------------------------------------------------
+
+----------------------------------------Assinatura---------------------------------
 
 one sig Disciplina{
-	alunos : some Aluno,
+	alunos : set Aluno,
 	monitores : set Monitor,
-	unidades: set Unidade
-	/*projeto : some Projeto*/
+	unidades: set Unidade,
+	projeto : set Projeto
 }
 
 some sig Aluno{
 	nome : one Nome,
-	matricula : some Matricula
+	matricula : one Matricula
 }
 
 sig Monitor{
@@ -53,8 +54,7 @@ sig Matricula{}
 sig Atividade{}
 sig Aula{}
 sig Tema{}
-
-----------------------------------------------------------------------------------Fatos----------------------------------------------------------------------------------------
+----------------------------Fatos----------------------------------------
 fact DisciplinaTemQuatroMonitores{
 	all d : Disciplina | verificaQuantidadeMonitores[d]
 }
@@ -63,7 +63,26 @@ fact DisciplinaTemDuasUnidades{
 	all d : Disciplina | verificaQuantidadeUnidades[d]
 }
 
--- Predicados
+fact NumeroDeMonitores{
+	#Monitor = 4
+}
+
+fact NumeroDeUnidade{
+	#Unidade = 2
+}
+
+fact apenasUmProjeto{
+	#Projeto = 1
+}
+
+/*fact DisciplinaTemUnidades{
+	all u : Unidade | one d : Disciplina | u in d.unidades
+}*/
+
+fact alunoMatriculado{
+	all a : Aluno | one d : Disciplina | a in d.alunos
+}
+-------------------------------- Predicados----------------------------------------------------------------
 pred verificaQuantidadeMonitores[d : Disciplina]{
 	#(d.monitores) = 4
 }
@@ -72,10 +91,9 @@ pred verificaQuantidadeUnidades[d : Disciplina]{
 	#(d.unidades) = 2
 } 
 
-----------------------------------------------------------------------------------Funcoes----------------------------------------------------------------------------------------
+----------------------------Funcoes--------------------------
 
-----------------------------------------------------------------------------------Asserts---------------------------------------------------------------------------------------- 
-
+----------------------------Asserts---------------------------
 assert alunoSemNome{
 	all a : Aluno | #(a.nome) > 0 
 }
@@ -84,13 +102,10 @@ assert alunoSemMatricula{
 	all a : Aluno | #(a.matricula) > 0 
 }
 
-
 assert unidadeSemAula{
 	all u : Unidade | #(u.aula) > 0
 }
-
-
-----------------------------------------------------------------------------------Show----------------------------------------------------------------------------------------
+--------------------Show--------------------------------------------------
 pred show[]{}
-run show for 4
+run show for 10
 
