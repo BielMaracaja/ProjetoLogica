@@ -27,7 +27,8 @@ module Disciplina
 one sig Disciplina{
 	alunos : set Aluno,
 	monitores : set Monitor,
-	unidades: set Unidade
+	unidades: set Unidade,
+	projeto: set Projeto
 }
 
 some sig Aluno{
@@ -51,12 +52,11 @@ sig Projeto{
 
 sig Nome{}
 sig Matricula{}
-
+sig Tema{}
 sig Aula{}
 
 enum Atividade {elabora_lista, corrige_lista, realiza_atendimento}
 
-enum Tema {tema1, tema2, tema3, tema4, tema5}
 
 ----------------------------Fatos----------------------------------------
 fact DisciplinaTemQuatroMonitores{
@@ -88,6 +88,16 @@ fact alunoMatriculado{
 	all a : Aluno | one d : Disciplina | a in d.alunos
 }
 
+-- Cada matricula deve estar relacionada a apenas um aluno
+fact matriculaDoAluno{
+	all m : Matricula | one a : Aluno |m in a.matricula
+}
+
+-- Cada nome deve estar relacionada a apenas um aluno ou um monitor
+fact nomeDaPessoa{
+	(all n : Nome | one a : Aluno | n in a.nome) or (all n : Nome | one a : Monitor | n in a.nome)
+}
+
 -- Cada aula deve estar relacionada a uma unidade
 fact aulaDaUnidade{
 	all a : Aula | one u : Unidade | a in u.aula
@@ -95,7 +105,17 @@ fact aulaDaUnidade{
 
 -- Cada projeto deve ser alocado no aluno
 fact projetoNoAluno{
-	all p : Projeto | some a: Aluno | p in a.projeto
+	all p : Projeto | one a: Aluno | p in a.projeto
+}
+
+-- Cada projeto deve ter apenas um tema
+fact temaNoProjeto{
+	all t : Tema | one p: Projeto | t in p.tema
+}
+
+-- Cada projeto deve ter 5 alunos usando
+fact cincoAlunosNoProjeto{
+	all p : Projeto | one a: Aluno | p in a.projeto 
 }
 
 -- Cada projeto deve estar dentro da disciplina
