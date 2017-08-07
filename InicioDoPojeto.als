@@ -79,8 +79,18 @@ fact apenasUmProjeto{
 	all u : Unidade | one d : Disciplina | u in d.unidades
 }*/
 
+-- cada aluno deve estar relacionado a disciplina
 fact alunoMatriculado{
 	all a : Aluno | one d : Disciplina | a in d.alunos
+}
+
+-- Cada aula deve estar relacionada a uma unidade
+fact aulaDaUnidade{
+	all a : Aula | one u : Unidade | a in u.aula
+}
+
+fact projetoNaDisciplina{
+	all p : Projeto | one d : Disciplina | p in d.projeto
 }
 -------------------------------- Predicados----------------------------------------------------------------
 pred verificaQuantidadeMonitores[d : Disciplina]{
