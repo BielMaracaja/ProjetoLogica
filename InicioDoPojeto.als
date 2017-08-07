@@ -27,13 +27,13 @@ module Disciplina
 one sig Disciplina{
 	alunos : set Aluno,
 	monitores : set Monitor,
-	unidades: set Unidade,
-	projeto : set Projeto
+	unidades: set Unidade
 }
 
 some sig Aluno{
 	nome : one Nome,
-	matricula : one Matricula
+	matricula : one Matricula,
+	projeto: one Projeto
 }
 
 sig Monitor{
@@ -51,9 +51,13 @@ sig Projeto{
 
 sig Nome{}
 sig Matricula{}
-sig Atividade{}
+
 sig Aula{}
-sig Tema{}
+
+enum Atividade {elabora_lista, corrige_lista, realiza_atendimento}
+
+enum Tema {tema1, tema2, tema3, tema4, tema5}
+
 ----------------------------Fatos----------------------------------------
 fact DisciplinaTemQuatroMonitores{
 	all d : Disciplina | verificaQuantidadeMonitores[d]
@@ -71,15 +75,15 @@ fact NumeroDeUnidade{
 	#Unidade = 2
 }
 
-fact apenasUmProjeto{
+/*fact apenasUmProjeto{
 	#Projeto = 1
-}
+}*/
 
 /*fact DisciplinaTemUnidades{
 	all u : Unidade | one d : Disciplina | u in d.unidades
 }*/
 
--- cada aluno deve estar relacionado a disciplina
+-- Cada aluno deve estar relacionado a disciplina
 fact alunoMatriculado{
 	all a : Aluno | one d : Disciplina | a in d.alunos
 }
@@ -89,9 +93,15 @@ fact aulaDaUnidade{
 	all a : Aula | one u : Unidade | a in u.aula
 }
 
-fact projetoNaDisciplina{
-	all p : Projeto | one d : Disciplina | p in d.projeto
+-- Cada projeto deve ser alocado no aluno
+fact projetoNoAluno{
+	all p : Projeto | some a: Aluno | p in a.projeto
 }
+
+-- Cada projeto deve estar dentro da disciplina
+/*fact projetoNaDisciplina{
+	all p : Projeto | one d : Disciplina | p in d.projeto
+}*/
 -------------------------------- Predicados----------------------------------------------------------------
 pred verificaQuantidadeMonitores[d : Disciplina]{
 	#(d.monitores) = 4
