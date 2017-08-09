@@ -33,8 +33,7 @@ one sig Disciplina{
 
 some sig Aluno{
 	nome : one Nome,
-	matricula : one Matricula,
-	projeto: one Projeto
+	matricula : one Matricula
 }
 
 sig Monitor{
@@ -47,6 +46,7 @@ sig Unidade{
 }
 
 sig Projeto{
+	aluno: set Aluno,
 	tema : one Tema
 }
 
@@ -55,7 +55,12 @@ sig Matricula{}
 sig Tema{}
 sig Aula{}
 
-enum Atividade {elabora_lista, corrige_lista, realiza_atendimento}
+abstract sig Atividade {/*elabora_lista, corrige_lista, realiza_atendimento*/}
+
+one sig elaboraLista extends Atividade {}
+one sig corrigeLista extends Atividade {}
+one sig realizaAtendimento extends Atividade {}
+
 
 
 ----------------------------Fatos----------------------------------------
@@ -94,18 +99,30 @@ fact matriculaDoAluno{
 }
 
 -- Cada nome deve estar relacionada a apenas um aluno ou um monitor
-fact nomeDaPessoa{
+/*fact nomeDaPessoa{
 	(all n : Nome | one a : Aluno | n in a.nome) or (all n : Nome | one a : Monitor | n in a.nome)
-}
+}*/
 
 -- Cada aula deve estar relacionada a uma unidade
 fact aulaDaUnidade{
 	all a : Aula | one u : Unidade | a in u.aula
 }
 
--- Cada projeto deve ser alocado no aluno
+-- Cada nome deve estar relacionado a uma pessoa
+/*fact nomeNaoOrfao{
+	all n : Nome | one a : Aluno or one a: Monitor | n in a.nome
+}*/
+
+-- Cada aluno deve ser alocado no projeto
 fact projetoNoAluno{
-	all p : Projeto | one a: Aluno | p in a.projeto
+	all a : Aluno | one p: Projeto | a in p.aluno
+}
+
+-- Cada nome deve estar em apenas um monitor ou apenas um aluno
+fact nomeUsadoApenasEmUmAlunoOuMonitor{
+	all a1: Aluno, a2: Aluno - a1, n: Nome | n in a1.nome => n not in a2.nome
+	all m1: Monitor, m2: Monitor - m1, n: Nome | n in m1.nome => n not in m2.nome
+	all a: Aluno, m: Monitor, n: Nome | n in a.nome => n not in m.nome
 }
 
 -- Cada projeto deve ter apenas um tema
@@ -115,7 +132,7 @@ fact temaNoProjeto{
 
 -- Cada projeto deve ter 5 alunos usando
 fact cincoAlunosNoProjeto{
-	all p : Projeto | one a: Aluno | p in a.projeto 
+	all p : Projeto | #(p.aluno) = 5
 }
 
 -- Cada projeto deve estar dentro da disciplina
