@@ -42,7 +42,7 @@ sig Monitor{
 }
 
 sig Unidade{
-	aula : one Aula
+	aula : one Aula 
 }
 
 sig Projeto{
@@ -135,6 +135,9 @@ fact cincoAlunosNoProjeto{
 	all p : Projeto | #(p.aluno) = 5
 }
 
+fact disciplinaTemProjeto{
+	all d: Disciplina | one p: Projeto | p in d.projeto
+}
 -- Cada projeto deve estar dentro da disciplina
 /*fact projetoNaDisciplina{
 	all p : Projeto | one d : Disciplina | p in d.projeto
