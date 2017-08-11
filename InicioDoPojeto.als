@@ -46,13 +46,15 @@ sig Unidade{
 }
 
 sig Projeto{
-	aluno: set Aluno,
-	tema : one Tema
+	tema : set Tema
 }
 
 sig Nome{}
 sig Matricula{}
-sig Tema{}
+
+sig Tema{
+	aluno: set Aluno
+}
 sig Aula{}
 
 abstract sig Atividade {/*elabora_lista, corrige_lista, realiza_atendimento*/}
@@ -113,9 +115,9 @@ fact aulaDaUnidade{
 	all n : Nome | one a : Aluno or one a: Monitor | n in a.nome
 }*/
 
--- Cada aluno deve ser alocado no projeto
-fact projetoNoAluno{
-	all a : Aluno | one p: Projeto | a in p.aluno
+-- Cada aluno deve ser alocado em um tema
+fact temaNoAluno{
+	all a : Aluno | one t: Tema | a in t.aluno
 }
 
 -- Cada nome deve estar em apenas um monitor ou apenas um aluno
@@ -126,22 +128,22 @@ fact nomeUsadoApenasEmUmAlunoOuMonitor{
 }
 
 -- Cada projeto deve ter apenas um tema
-fact temaNoProjeto{
+/*fact temaNoProjeto{
 	all t : Tema | one p: Projeto | t in p.tema
-}
+}*/
 
--- Cada projeto deve ter 5 alunos usando
-fact cincoAlunosNoProjeto{
-	all p : Projeto | #(p.aluno) = 5
+-- Cada tena deve ter 5 alunos usando
+fact cincoAlunosComOTema{
+	all t : Tema | #(t.aluno) = 5
 }
 
 fact disciplinaTemProjeto{
 	all d: Disciplina | one p: Projeto | p in d.projeto
 }
 -- Cada projeto deve estar dentro da disciplina
-/*fact projetoNaDisciplina{
+fact projetoNaDisciplina{
 	all p : Projeto | one d : Disciplina | p in d.projeto
-}*/
+}
 -------------------------------- Predicados----------------------------------------------------------------
 pred verificaQuantidadeMonitores[d : Disciplina]{
 	#(d.monitores) = 4
@@ -167,5 +169,5 @@ assert unidadeSemAula{
 }
 --------------------Show--------------------------------------------------
 pred show[]{}
-run show for 10
+run show for 20
 
