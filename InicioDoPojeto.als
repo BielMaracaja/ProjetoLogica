@@ -32,17 +32,17 @@ one sig Disciplina{
 }
 
 some sig Aluno{
-	nome : one Nome,
-	matricula : one Matricula
+	/*nome : one Nome,
+	matricula : one Matricula*/
 }
 
 sig Monitor{
-	nome : one Nome,
-	atividade : one Atividade
+	/*nome : one Nome,*/
+	atividades : set Atividade
 }
 
 sig Unidade{
-	aula : one Aula 
+	atividades : set Atividade 
 }
 
 sig Projeto{
@@ -55,13 +55,15 @@ sig Matricula{}
 sig Tema{
 	aluno: set Aluno
 }
-sig Aula{}
 
 abstract sig Atividade {/*elabora_lista, corrige_lista, realiza_atendimento*/}
 
-one sig elaboraLista extends Atividade {}
-one sig corrigeLista extends Atividade {}
-one sig realizaAtendimento extends Atividade {}
+sig elaboraCorrigeLista extends Atividade {}
+/*one sig corrigeLista extends Atividade {}*/
+sig realizaAtendimento extends Atividade {}
+sig ministraAula extends Atividade {
+	monitor : set Monitor	
+}
 
 
 
@@ -95,19 +97,24 @@ fact alunoMatriculado{
 	all a : Aluno | one d : Disciplina | a in d.alunos
 }
 
--- Cada matricula deve estar relacionada a apenas um aluno
-fact matriculaDoAluno{
-	all m : Matricula | one a : Aluno |m in a.matricula
+-- Todos os temas precisam estar no projeto
+fact temasNoProjeto{
+	all t : Tema | one p : Projeto | t in p.tema
 }
+
+-- Cada matricula deve estar relacionada a apenas um aluno
+/*fact matriculaDoAluno{
+	all m : Matricula | one a : Aluno |m in a.matricula
+}*/
 
 -- Cada nome deve estar relacionada a apenas um aluno ou um monitor
 /*fact nomeDaPessoa{
 	(all n : Nome | one a : Aluno | n in a.nome) or (all n : Nome | one a : Monitor | n in a.nome)
 }*/
 
--- Cada aula deve estar relacionada a uma unidade
-fact aulaDaUnidade{
-	all a : Aula | one u : Unidade | a in u.aula
+-- Cada atividade deve estar relacionada a uma unidade 
+fact atividadesDaUnidade{
+	all a : Atividade | one u : Unidade | a in u.atividades
 }
 
 -- Cada nome deve estar relacionado a uma pessoa
@@ -120,12 +127,30 @@ fact temaNoAluno{
 	all a : Aluno | one t: Tema | a in t.aluno
 }
 
+-- Cada unidade precisa ter as 3 atividades
+fact unidadeTemTresAtividades{
+	all u : Unidade | one a : elaboraCorrigeLista | a in u.atividades
+	all u : Unidade | one a : realizaAtendimento | a in u.atividades
+	all u : Unidade | one a : ministraAula | a in u.atividades
+}
+
+-- Cada aula precisa ser dada por 2 monitores e não pode ser a mesma pessoa em unidades distintas
+fact aulaDadaPorDoisMonitores {
+	all m : Monitor | one a : ministraAula | a in m.atividades  
+	all m : Monitor | one b : ministraAula | b not in m.atividades 
+}
+
+-- Os monitores realizam apenas uma atividade por vez(a monitoria acha que eh assim,)
+
+fact realizamPorVez{
+	all m : Monitor, u: Unidade | one a: Atividade | a in (u.atividades) and a in m.atividades
+}
 -- Cada nome deve estar em apenas um monitor ou apenas um aluno
-fact nomeUsadoApenasEmUmAlunoOuMonitor{
+/*fact nomeUsadoApenasEmUmAlunoOuMonitor{
 	all a1: Aluno, a2: Aluno - a1, n: Nome | n in a1.nome => n not in a2.nome
 	all m1: Monitor, m2: Monitor - m1, n: Nome | n in m1.nome => n not in m2.nome
 	all a: Aluno, m: Monitor, n: Nome | n in a.nome => n not in m.nome
-}
+}*/
 
 -- Cada projeto deve ter apenas um tema
 /*fact temaNoProjeto{
@@ -153,19 +178,44 @@ pred verificaQuantidadeUnidades[d : Disciplina]{
 	#(d.unidades) = 2
 } 
 
+-- O outro predicado pode ser a vericacao da quantidade de temas por monitor, que no máximo é 3
+
+-- pred verificaQuantidadeTemas[m : Monitor]{
+--	#(m.temas) <= 3
+--}
 ----------------------------Funcoes--------------------------
 
+-- retorna o numero de projetos por monitor
+-- fun getNumeroTemas[m: Monitor]: set Temas {
+--	(Monitor.Temas)
+--}
+
+-- retorna o numero de alunos que esta no acompanhamento do monitor
+-- fun getNumeroAlunosAcompanhamento[m: Monitor]: set Alunos {
+--	(Monitor.Alunos)
+--}
+
+
+
 ----------------------------Asserts---------------------------
-assert alunoSemNome{
+/*assert alunoSemNome{
 	all a : Aluno | #(a.nome) > 0 
 }
 
 assert alunoSemMatricula{
 	all a : Aluno | #(a.matricula) > 0 
+}*/
+
+assert unidadeSemAtividades{
+	all u : Unidade | #(u.atividades) = 3
 }
 
-assert unidadeSemAula{
-	all u : Unidade | #(u.aula) > 0
+assert temQuatroMonitores{
+	all d : Disciplina | #(d.monitores) = 4
+}
+
+assert temDuasUnidades{
+	all d : Disciplina | #(d.unidades) = 2
 }
 --------------------Show--------------------------------------------------
 pred show[]{}
