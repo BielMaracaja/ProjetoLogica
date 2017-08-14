@@ -1,28 +1,6 @@
-/*
-Tema 9: Monitoria de Lógica
-Em um determinado período, a disciplina de Lógica Matemática dispõe de quatro monitores que são responsáveis por 
-algumas atividades distribuídas entre as três unidades da disciplina. 
-Entre as atividades realizadas em todos os estágios temos: elaborar e corrigir listas de exercício e realizar atendimento 
-presencial com os alunos. Estas atividades podem ser realizadas por todos os monitores, 
-mas um monitor que participou da elaboração de uma lista deve, obrigatoriamente, corrigir a mesma. 
-Em cada um dos dois primeiros estágios temos uma aula de exercícios que deve ser ministrada por dois monitores, 
-de modo que cada monitor está presente em apenas uma delas. No terceiro estágio todos os monitores devem realizar 
-a elaboração de temas para projetos e acompanhar até três grupos de alunos, 
-onde cada grupo é formado por 5 alunos. O atendimento a alunos é realizado sob demanda. Dessa forma, os alunos podem 
-solicitar encontros presenciais com os monitores e cada monitor pode 
-acompanhar até 3 alunos em cada encontro. Os monitores realizam apenas uma atividade por vez.  
-
-Cliente: Gabriela
-
-Integrantes: Raquel Rufino, Pedro Henrique, Victor Emanuel, Mateus Mangueira e Gabriel Maracajá 
-*/
-
-
-// Cada Discilpina tem um (n alunos), (4 monitores), (2 unidades), (Projeto);
-
 module Disciplina
 
-----------------------------------------Assinatura---------------------------------
+----------------------------------------Assinaturas---------------------------------
 
 one sig Disciplina{
 	alunos : set Aluno,
@@ -32,17 +10,15 @@ one sig Disciplina{
 }
 
 some sig Aluno{
-	/*nome : one Nome,
-	matricula : one Matricula*/
 }
 
 sig Monitor{
-	/*nome : one Nome,*/
 	atividades : set Atividade
 }
 
 sig Unidade{
-	atividades : set Atividade 
+	atividades : set Atividade,
+	aula : one Aula
 }
 
 sig Projeto{
@@ -50,21 +26,23 @@ sig Projeto{
 }
 
 sig Nome{}
+
 sig Matricula{}
 
 sig Tema{
 	aluno: set Aluno
 }
 
-abstract sig Atividade {/*elabora_lista, corrige_lista, realiza_atendimento*/}
-
-sig elaboraCorrigeLista extends Atividade {}
-/*one sig corrigeLista extends Atividade {}*/
-sig realizaAtendimento extends Atividade {}
-sig ministraAula extends Atividade {
-	monitor : set Monitor	
+sig Aula{
+	monitores : set Monitor
 }
 
+abstract sig Atividade {}
+
+sig elaboraCorrigeLista extends Atividade {}
+
+/*one sig corrigeLista extends Atividade {}*/
+sig realizaAtendimento extends Atividade {}
 
 
 ----------------------------Fatos----------------------------------------
@@ -84,13 +62,21 @@ fact NumeroDeUnidade{
 	#Unidade = 2
 }
 
-/*fact apenasUmProjeto{
-	#Projeto = 1
-}*/
+fact NumeroDeAulas{
+	#Aula = 2
+}
 
-/*fact DisciplinaTemUnidades{
-	all u : Unidade | one d : Disciplina | u in d.unidades
-}*/
+-- Cada aula da unidade deve ser dada por dois monitores diferentes
+fact MonitoresPorAula{
+	all a : Aula | #(a.monitores) = 2
+} 
+
+-- Garantir que toda aula irá estar em uma unidade
+fact AulaPorUnidade{
+	all u : Unidade | one a : Aula | a in u.aula
+	/*all u1 : Unidade, u2 : Unidade | one a : Aula | a in u1.aula , a not in u2.aula*/
+	all u : Unidade | #(u.aula) = 1 
+}
 
 -- Cada aluno deve estar relacionado a disciplina
 fact alunoMatriculado{
@@ -131,13 +117,6 @@ fact temaNoAluno{
 fact unidadeTemTresAtividades{
 	all u : Unidade | one a : elaboraCorrigeLista | a in u.atividades
 	all u : Unidade | one a : realizaAtendimento | a in u.atividades
-	all u : Unidade | one a : ministraAula | a in u.atividades
-}
-
--- Cada aula precisa ser dada por 2 monitores e não pode ser a mesma pessoa em unidades distintas
-fact aulaDadaPorDoisMonitores {
-	all m : Monitor | one a : ministraAula | a in m.atividades  
-	all m : Monitor | one b : ministraAula | b not in m.atividades 
 }
 
 -- Os monitores realizam apenas uma atividade por vez(a monitoria acha que eh assim,)
@@ -157,7 +136,7 @@ fact realizamPorVez{
 	all t : Tema | one p: Projeto | t in p.tema
 }*/
 
--- Cada tena deve ter 5 alunos usando
+-- Cada tema deve ter 5 alunos usando
 fact cincoAlunosComOTema{
 	all t : Tema | #(t.aluno) = 5
 }
@@ -184,6 +163,7 @@ pred verificaQuantidadeUnidades[d : Disciplina]{
 --	#(m.temas) <= 3
 --}
 ----------------------------Funcoes--------------------------
+
 
 -- retorna o numero de projetos por monitor
 -- fun getNumeroTemas[m: Monitor]: set Temas {
@@ -219,5 +199,5 @@ assert temDuasUnidades{
 }
 --------------------Show--------------------------------------------------
 pred show[]{}
-run show for 20
+run show for 10 
 
