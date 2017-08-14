@@ -3,8 +3,8 @@ module Disciplina
 ----------------------------------------Assinaturas---------------------------------
 
 one sig Disciplina{
-	alunos : set Aluno,
-	monitores : set Monitor,
+	--alunos : set Aluno,
+	--monitores : set Monitor,
 	unidades: set Unidade,
 	projeto: set Projeto
 }
@@ -40,118 +40,91 @@ sig Aula{
 abstract sig Atividade {}
 
 sig elaboraCorrigeLista extends Atividade {}
-
 /*one sig corrigeLista extends Atividade {}*/
 sig realizaAtendimento extends Atividade {}
 
 
 ----------------------------Fatos----------------------------------------
-fact DisciplinaTemQuatroMonitores{
-	all d : Disciplina | verificaQuantidadeMonitores[d]
-}
+--fact DisciplinaTemQuatroMonitores{
+--	all d : Disciplina | verificaQuantidadeMonitores[d]
+--}
 
 fact DisciplinaTemDuasUnidades{
 	all d : Disciplina | verificaQuantidadeUnidades[d]
 }
 
-fact NumeroDeMonitores{
+
+fact NumeroDeElementos{
 	#Monitor = 4
-}
-
-fact NumeroDeUnidade{
 	#Unidade = 2
-}
-
-fact NumeroDeAulas{
 	#Aula = 2
 }
 
+fact Aulas {
+
 -- Cada aula da unidade deve ser dada por dois monitores diferentes
-fact MonitoresPorAula{
 	all a : Aula | #(a.monitores) = 2
-} 
 
 -- Garantir que toda aula irá estar em uma unidade
-fact AulaPorUnidade{
-	all u : Unidade | one a : Aula | a in u.aula
-	/*all u1 : Unidade, u2 : Unidade | one a : Aula | a in u1.aula , a not in u2.aula*/
 	all u : Unidade | #(u.aula) = 1 
+	all a : Aula | one u : Unidade | a in u.aula
 }
+
+fact Alunos {
 
 -- Cada aluno deve estar relacionado a disciplina
-fact alunoMatriculado{
-	all a : Aluno | one d : Disciplina | a in d.alunos
-}
-
--- Todos os temas precisam estar no projeto
-fact temasNoProjeto{
-	all t : Tema | one p : Projeto | t in p.tema
-}
-
--- Cada matricula deve estar relacionada a apenas um aluno
-/*fact matriculaDoAluno{
-	all m : Matricula | one a : Aluno |m in a.matricula
-}*/
-
--- Cada nome deve estar relacionada a apenas um aluno ou um monitor
-/*fact nomeDaPessoa{
-	(all n : Nome | one a : Aluno | n in a.nome) or (all n : Nome | one a : Monitor | n in a.nome)
-}*/
-
--- Cada atividade deve estar relacionada a uma unidade 
-fact atividadesDaUnidade{
-	all a : Atividade | one u : Unidade | a in u.atividades
-}
-
--- Cada nome deve estar relacionado a uma pessoa
-/*fact nomeNaoOrfao{
-	all n : Nome | one a : Aluno or one a: Monitor | n in a.nome
-}*/
+--	all a : Aluno | one d : Disciplina | a in d.alunos
 
 -- Cada aluno deve ser alocado em um tema
-fact temaNoAluno{
 	all a : Aluno | one t: Tema | a in t.aluno
 }
 
+fact Temas {
+
+-- Todos os temas precisam estar no projeto
+	all t : Tema | one p : Projeto | t in p.tema
+
+-- Cada tema deve ter 5 alunos usando
+	all t : Tema | #(t.aluno) = 5
+}
+
+fact Atividades {
+
+-- Cada atividade deve estar relacionada a uma unidade 
+	all a : Atividade | one u : Unidade | a in u.atividades
+}
+
+fact Unidades {
+
 -- Cada unidade precisa ter as 3 atividades
-fact unidadeTemTresAtividades{
 	all u : Unidade | one a : elaboraCorrigeLista | a in u.atividades
 	all u : Unidade | one a : realizaAtendimento | a in u.atividades
 }
 
--- Os monitores realizam apenas uma atividade por vez(a monitoria acha que eh assim,)
+fact Monitores {
 
-fact realizamPorVez{
+-- Os monitores realizam apenas uma atividade por vez
 	all m : Monitor, u: Unidade | one a: Atividade | a in (u.atividades) and a in m.atividades
 }
--- Cada nome deve estar em apenas um monitor ou apenas um aluno
-/*fact nomeUsadoApenasEmUmAlunoOuMonitor{
-	all a1: Aluno, a2: Aluno - a1, n: Nome | n in a1.nome => n not in a2.nome
-	all m1: Monitor, m2: Monitor - m1, n: Nome | n in m1.nome => n not in m2.nome
-	all a: Aluno, m: Monitor, n: Nome | n in a.nome => n not in m.nome
-}*/
+
+fact Disciplina {
+
+-- A disciplina tem um projeto
+	all d: Disciplina | one p: Projeto | p in d.projeto
+
+-- Cada projeto deve estar dentro da disciplina
+	all p : Projeto | one d : Disciplina | p in d.projeto
+}
 
 -- Cada projeto deve ter apenas um tema
 /*fact temaNoProjeto{
 	all t : Tema | one p: Projeto | t in p.tema
 }*/
 
--- Cada tema deve ter 5 alunos usando
-fact cincoAlunosComOTema{
-	all t : Tema | #(t.aluno) = 5
-}
-
-fact disciplinaTemProjeto{
-	all d: Disciplina | one p: Projeto | p in d.projeto
-}
--- Cada projeto deve estar dentro da disciplina
-fact projetoNaDisciplina{
-	all p : Projeto | one d : Disciplina | p in d.projeto
-}
 -------------------------------- Predicados----------------------------------------------------------------
-pred verificaQuantidadeMonitores[d : Disciplina]{
-	#(d.monitores) = 4
-}
+--pred verificaQuantidadeMonitores[d : Disciplina]{
+	--#(d.monitores) = 4
+--}
 
 pred verificaQuantidadeUnidades[d : Disciplina]{
 	#(d.unidades) = 2
@@ -166,13 +139,13 @@ pred verificaQuantidadeUnidades[d : Disciplina]{
 
 
 -- retorna o numero de projetos por monitor
--- fun getNumeroTemas[m: Monitor]: set Temas {
---	(Monitor.Temas)
+--fun getNumeroTemas[m: Monitor]: set Tema {
+--	(Monitor.Tema)
 --}
 
 -- retorna o numero de alunos que esta no acompanhamento do monitor
--- fun getNumeroAlunosAcompanhamento[m: Monitor]: set Alunos {
---	(Monitor.Alunos)
+ --fun getNumeroAlunosAcompanhamento[m: Monitor]: set Aluno {
+--	(Monitor.Aluno)
 --}
 
 
@@ -190,9 +163,9 @@ assert unidadeSemAtividades{
 	all u : Unidade | #(u.atividades) = 3
 }
 
-assert temQuatroMonitores{
-	all d : Disciplina | #(d.monitores) = 4
-}
+--assert temQuatroMonitores{
+--	all d : Disciplina | #(d.monitores) = 4
+--}
 
 assert temDuasUnidades{
 	all d : Disciplina | #(d.unidades) = 2
