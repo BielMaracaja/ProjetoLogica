@@ -3,17 +3,16 @@ module Disciplina
 ----------------------------------------Assinaturas---------------------------------
 
 one sig Disciplina{
-	--alunos : set Aluno,
-	--monitores : set Monitor,
+	-- Uma disciplina tem duas unidades (provas) e um projeto
 	unidades: set Unidade,
 	projeto: set Projeto
 }
 
-some sig Aluno{
-}
+some sig Aluno{}
 
 sig Monitor{
-	atividades : set Atividade
+	atividades : set Atividade,
+	temas: set Tema
 }
 
 sig Unidade{
@@ -86,6 +85,9 @@ fact Temas {
 
 -- Cada tema deve ter 5 alunos usando
 	all t : Tema | #(t.aluno) = 5
+
+-- Cada tema deve estar relacionado a um monitor
+	all t : Tema | one m : Monitor | t in m.temas
 }
 
 fact Atividades {
@@ -105,6 +107,15 @@ fact Monitores {
 
 -- Os monitores realizam apenas uma atividade por vez
 	all m : Monitor, u: Unidade | one a: Atividade | a in (u.atividades) and a in m.atividades
+
+-- Todo monitor deve ter pelo menos um tema
+	all m : Monitor | some t : Tema | t in m.temas
+
+-- Todo monitor deve ter no maximo 3 temas
+	all m : Monitor | #(m.temas) < 4
+
+-- Todo monitor deve estar relacionado a aula
+	all m : Monitor | one a : Aula | m in a.monitores
 }
 
 fact Disciplina {
@@ -172,5 +183,5 @@ assert temDuasUnidades{
 }
 --------------------Show--------------------------------------------------
 pred show[]{}
-run show for 10 
+run show for 40 but exactly 20 Aluno
 
