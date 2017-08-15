@@ -65,8 +65,6 @@ fact Alunos {
 
 -- Cada aluno deve ser alocado em um tema
 	all a : Aluno | one t: Tema | a in t.aluno
---	all a : Aluno | one a.~~
-
 }
 
 fact Temas {
@@ -142,22 +140,7 @@ fact Disciplina {
 	all p : Projeto | one d : Disciplina | p in d.projeto
 }
 
-fact Atendimento {
-
--- Cada atendimento realizado deve ter 3 alunos
---	all r : realizaAtendimento | some a : Aluno | a in r.alunos
---	all r : realizaAtendimento | #(r.alunos) < 4
-}
-
--- Cada projeto deve ter apenas um tema
-/*fact temaNoProjeto{
-	all t : Tema | one p: Projeto | t in p.tema
-}*/
-
 -------------------------------- Predicados----------------------------------------------------------------
---pred verificaQuantidadeMonitores[d : Disciplina]{
---	#(d.monitores) = 4
---}
 
 pred verificaQuantidadesProjeto[d : Disciplina]{
 	#(d.projeto) = 1
@@ -175,10 +158,6 @@ pred verificaQuantidadeTemas[m : Monitor]{
 	#(m.temas) < 4
 }
 
---pred verificaQuantidadeDeAlunosPorMonitor[m: Monitor, t: Tema] {
---	#(alunosDeMonitor[m, t]) <= 3
---}
-
 ----------------------------Funcoes--------------------------
 
 --fun atividadesDaUnidade[r: realizaAtendimento]: set Conta {
@@ -192,7 +171,7 @@ fun getNumeroTemas[m: Monitor]: set Tema {
 
 -- retorna o numero de alunos que esta no acompanhamento do monitor
  fun getNumeroAlunosAcompanhamento[m: Monitor]: set Aluno {
-	(m.aluno)
+	(m.alunos)
 }
 
 --fun alunosDeMonitor [m: Monitor, t: Tema]  : set Aluno {
@@ -200,26 +179,35 @@ fun getNumeroTemas[m: Monitor]: set Tema {
 --}
 
 ----------------------------Asserts---------------------------
-/*assert alunoSemNome{
-	all a : Aluno | #(a.nome) > 0 
+
+assert unidadeTemDuasAtividades{
+	all u : Unidade | #(u.atividades) = 2
 }
 
-assert alunoSemMatricula{
-	all a : Aluno | #(a.matricula) > 0 
-}*/
-
-assert unidadeSemAtividades{
-	all u : Unidade | #(u.atividades) = 3
-}
-
---assert temQuatroMonitores{
---	all d : Disciplina | #(d.monitores) = 4
---}
-
-assert temDuasUnidades{
+assert disciplinaTemDuasUnidades{
 	all d : Disciplina | #(d.unidades) = 2
 }
+
+assert disciplinaTemUmProjeto{
+	all d : Disciplina | #(d.projeto) = 1
+}
+
+assert monitorAcompanhaAteTresAlunos{
+	all m : Monitor | #(m.alunos) < 4
+}
+
+----------------------------Checks---------------------------
+
+--check unidadeTemDuasAtividades for 20
+
+--check disciplinaTemDuasUnidades for 20
+
+--check disciplinaTemUmProjeto for 20
+
+--check monitorAcompanhaAteTresAlunos for 20
+
 --------------------Show--------------------------------------------------
-pred show[]{ } -- (#Aluno >= 20) and (#Aluno <= 60) and rem[#Aluno, 5] = 0 }
+
+pred show[]{ }
 run show for 20 but exactly 20 Aluno
 
