@@ -2,8 +2,8 @@ module Disciplina
 
 ----------------------------------------Assinaturas---------------------------------
 
+-- Uma disciplina tem duas unidades (provas) e um projeto
 one sig Disciplina{
-	-- Uma disciplina tem duas unidades (provas) e um projeto
 	unidades: set Unidade,
 	projeto: set Projeto
 }
@@ -12,7 +12,8 @@ some sig Aluno{}
 
 sig Monitor{
 	atividades : set Atividade,
-	temas: set Tema
+	temas: set Tema,
+	alunos: set Aluno
 }
 
 sig Unidade{
@@ -23,10 +24,6 @@ sig Unidade{
 sig Projeto{
 	tema : set Tema
 }
-
-sig Nome{}
-
-sig Matricula{}
 
 sig Tema{
 	aluno: set Aluno
@@ -40,23 +37,18 @@ abstract sig Atividade {}
 
 sig elaboraCorrigeLista extends Atividade {}
 /*one sig corrigeLista extends Atividade {}*/
-sig realizaAtendimento extends Atividade {}
-
-
-----------------------------Fatos----------------------------------------
---fact DisciplinaTemQuatroMonitores{
---	all d : Disciplina | verificaQuantidadeMonitores[d]
---}
-
-fact DisciplinaTemDuasUnidades{
-	all d : Disciplina | verificaQuantidadeUnidades[d]
+sig realizaAtendimento extends Atividade {
+--	alunos : set Aluno
 }
 
 
+----------------------------Fatos----------------------------------------
 fact NumeroDeElementos{
+	-- Existem 1 disciplina, 4 monitores, 2 unidades e 1 projeto
 	#Monitor = 4
-	#Unidade = 2
-	#Aula = 2
+	all d : Disciplina | verificaQuantidadesUnidade[d]
+	all u : Unidade | verificaQuantidadesAula[u]
+	all d : Disciplina | verificaQuantidadesProjeto[d]
 }
 
 fact Aulas {
@@ -71,11 +63,10 @@ fact Aulas {
 
 fact Alunos {
 
--- Cada aluno deve estar relacionado a disciplina
---	all a : Aluno | one d : Disciplina | a in d.alunos
-
 -- Cada aluno deve ser alocado em um tema
 	all a : Aluno | one t: Tema | a in t.aluno
+--	all a : Aluno | one a.~~
+
 }
 
 fact Temas {
@@ -112,10 +103,34 @@ fact Monitores {
 	all m : Monitor | some t : Tema | t in m.temas
 
 -- Todo monitor deve ter no maximo 3 temas
-	all m : Monitor | #(m.temas) < 4
+	all m : Monitor | verificaQuantidadeTemas[m] --#(m.temas) < 4
 
 -- Todo monitor deve estar relacionado a aula
 	all m : Monitor | one a : Aula | m in a.monitores
+
+-- Toda lista deve estar sendo elaborada e corrigida por um monitor
+	all l : elaboraCorrigeLista | one m: Monitor | l in m.atividades
+
+-- Um monitor pode acompanhar no máximo 3 alunos no projeto
+	all m : Monitor | #(m.alunos) < 4
+
+ -- all m: Monitor, t: Tema | verificaQuantidadeDeAlunosPorMonitor[m, t]
+
+--  all m: Monitor | some t: Tema, a: Aluno | a in m.alunos => a in t.aluno
+
+--	all a : Aluno | one m : Monitor, t : Tema | t in m.temas and a in t.aluno
+
+--	all m : Monitor, t : Tema | some a : Aluno | a in m.alunos => a in t.aluno
+
+--	all m : Monitor | one a : Aluno,  t1 : Tema, t2 : Tema | a in t1.aluno and t1 in m.temas => a not in t2.aluno and t2 not in m.temas
+
+--	all m : Monitor, a : Aluno | one t : Tema | t in m.temas => a in t.aluno
+
+-- all t : Tema | some a : Aluno, m : Monitor | a in m.alunos => (t in m.temas and a in t.aluno) 
+
+--	all a : Aluno | one m : Monitor, t : Tema | a in m.alunos => a in t.aluno
+
+--all a1 : Aluno, a2 : Aluno | one m : Monitor, t : Tema | a1 in m.alunos and a2 in m.alunos => a1 in t.aluno and a2 in t.aluno
 }
 
 fact Disciplina {
@@ -127,6 +142,13 @@ fact Disciplina {
 	all p : Projeto | one d : Disciplina | p in d.projeto
 }
 
+fact Atendimento {
+
+-- Cada atendimento realizado deve ter 3 alunos
+--	all r : realizaAtendimento | some a : Aluno | a in r.alunos
+--	all r : realizaAtendimento | #(r.alunos) < 4
+}
+
 -- Cada projeto deve ter apenas um tema
 /*fact temaNoProjeto{
 	all t : Tema | one p: Projeto | t in p.tema
@@ -134,32 +156,48 @@ fact Disciplina {
 
 -------------------------------- Predicados----------------------------------------------------------------
 --pred verificaQuantidadeMonitores[d : Disciplina]{
-	--#(d.monitores) = 4
+--	#(d.monitores) = 4
 --}
 
-pred verificaQuantidadeUnidades[d : Disciplina]{
+pred verificaQuantidadesProjeto[d : Disciplina]{
+	#(d.projeto) = 1
+}
+
+pred verificaQuantidadesUnidade[d : Disciplina]{
 	#(d.unidades) = 2
 } 
 
--- O outro predicado pode ser a vericacao da quantidade de temas por monitor, que no máximo é 3
+pred verificaQuantidadesAula[u : Unidade]{
+	#(u.aula) = 1
+}
 
--- pred verificaQuantidadeTemas[m : Monitor]{
---	#(m.temas) <= 3
+pred verificaQuantidadeTemas[m : Monitor]{
+	#(m.temas) < 4
+}
+
+--pred verificaQuantidadeDeAlunosPorMonitor[m: Monitor, t: Tema] {
+--	#(alunosDeMonitor[m, t]) <= 3
 --}
+
 ----------------------------Funcoes--------------------------
 
+--fun atividadesDaUnidade[r: realizaAtendimento]: set Conta {
+--b.contas
+--} 
 
 -- retorna o numero de projetos por monitor
---fun getNumeroTemas[m: Monitor]: set Tema {
---	(Monitor.Tema)
---}
+fun getNumeroTemas[m: Monitor]: set Tema {
+	(m.temas)
+}
 
 -- retorna o numero de alunos que esta no acompanhamento do monitor
- --fun getNumeroAlunosAcompanhamento[m: Monitor]: set Aluno {
---	(Monitor.Aluno)
+ fun getNumeroAlunosAcompanhamento[m: Monitor]: set Aluno {
+	(m.aluno)
+}
+
+--fun alunosDeMonitor [m: Monitor, t: Tema]  : set Aluno {
+--	m.alunos & t.aluno
 --}
-
-
 
 ----------------------------Asserts---------------------------
 /*assert alunoSemNome{
@@ -182,6 +220,6 @@ assert temDuasUnidades{
 	all d : Disciplina | #(d.unidades) = 2
 }
 --------------------Show--------------------------------------------------
-pred show[]{}
-run show for 40 but exactly 20 Aluno
+pred show[]{ } -- (#Aluno >= 20) and (#Aluno <= 60) and rem[#Aluno, 5] = 0 }
+run show for 20 but exactly 20 Aluno
 
