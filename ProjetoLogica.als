@@ -1,6 +1,6 @@
 module Disciplina
 
-----------------------------------------Assinaturas---------------------------------
+-------------------------------------------Assinaturas-----------------------------------------
 
 -- Uma disciplina tem duas unidades (provas) e um projeto
 
@@ -40,7 +40,7 @@ sig elaboraCorrigeLista extends Atividade {}
 sig realizaAtendimento extends Atividade {}
 
 
-----------------------------Fatos----------------------------------------
+-------------------------------------------Fatos-----------------------------------------
 
 -- Existem 1 disciplina, 4 monitores, 2 unidades e 1 projeto
 fact NumeroDeElementos{
@@ -122,7 +122,7 @@ fact Disciplina {
 	all p : Projeto | one d : Disciplina | p in d.projeto
 }
 
--------------------------------- Predicados----------------------------------------------------------------
+-------------------------------------------Predicados-----------------------------------------
 
 pred verificaQuantidadesProjeto[d : Disciplina]{
 	#(d.projeto) = 1
@@ -140,7 +140,7 @@ pred verificaQuantidadeTemas[m : Monitor]{
 	#(m.temas) < 4
 }
 
-----------------------------Funcoes--------------------------
+-------------------------------------------Funções-----------------------------------------
 
 fun getAlunosTema[t:Tema]: set Aluno {
 	(t.aluno)
@@ -162,8 +162,7 @@ fun getNumeroTemas[m: Monitor]: set Tema {
 	(m.temas)
 }
 
-----------------------------Asserts---------------------------
-
+-------------------------------------------Asserts-----------------------------------------
 assert unidadeTemDuasAtividades{
 	all u : Unidade | #(u.atividades) = 2
 }
@@ -180,7 +179,7 @@ assert monitorAcompanhaAteTresAlunos{
 	all m : Monitor | #(m.alunos) < 4
 }
 
-----------------------------Checks---------------------------
+-------------------------------------------Checks-----------------------------------------
 
 --check unidadeTemDuasAtividades for 20
 
@@ -190,10 +189,11 @@ assert monitorAcompanhaAteTresAlunos{
 
 --check monitorAcompanhaAteTresAlunos for 20
 
---------------------Show--------------------------------------------------
+--------------------------------------------Show------------------------------------------
 
 -- Mínimo de Alunos: 20 (um tema para cada monitor)
 -- Máximo de Alunos: 60 (três temas para cada monitor)
+
 pred show[]{ }
 run show for 20 but exactly 20 Aluno
 
