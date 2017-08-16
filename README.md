@@ -23,3 +23,5 @@ os monitores e cada monitor pode acompanhar até 3 alunos em cada encontro.
 Os monitores realizam apenas uma atividade por vez.  
 
 Cliente: Gabriela
+
+Alunos: Gabriel Maracajá, Mateus Mangueira, Pedro Henrique, Raquel Rufino e Victor Borges.

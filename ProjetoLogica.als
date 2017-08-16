@@ -40,7 +40,7 @@ sig elaboraCorrigeLista extends Atividade {}
 sig realizaAtendimento extends Atividade {}
 
 
--------------------------------------------Fatos-----------------------------------------
+-------------------------------------------------Fatos-----------------------------------------
 
 -- Existem 1 disciplina, 4 monitores, 2 unidades e 1 projeto
 fact NumeroDeElementos{
@@ -163,6 +163,7 @@ fun getNumeroTemas[m: Monitor]: set Tema {
 }
 
 -------------------------------------------Asserts-----------------------------------------
+
 assert unidadeTemDuasAtividades{
 	all u : Unidade | #(u.atividades) = 2
 }
@@ -178,7 +179,6 @@ assert disciplinaTemUmProjeto{
 assert monitorAcompanhaAteTresAlunos{
 	all m : Monitor | #(m.alunos) < 4
 }
-
 -------------------------------------------Checks-----------------------------------------
 
 --check unidadeTemDuasAtividades for 20
@@ -189,7 +189,7 @@ assert monitorAcompanhaAteTresAlunos{
 
 --check monitorAcompanhaAteTresAlunos for 20
 
---------------------------------------------Show------------------------------------------
+-------------------------------------------Show-----------------------------------------
 
 -- Mínimo de Alunos: 20 (um tema para cada monitor)
 -- Máximo de Alunos: 60 (três temas para cada monitor)
