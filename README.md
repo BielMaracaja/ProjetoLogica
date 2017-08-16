@@ -24,4 +24,4 @@ Os monitores realizam apenas uma atividade por vez.  
 
 Cliente: Gabriela
 
-Alunos: Gabriel Maracajá, Matheus Mangueira, Pedro Henrique, Raquel Rufino e Victor Borges.
+Alunos: Gabriel Maracajá, Mateus Mangueira, Pedro Henrique, Raquel Rufino e Victor Borges.
